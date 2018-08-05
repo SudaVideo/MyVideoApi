@@ -15,5 +15,5 @@ public class VideoDTO extends BaseDomain {
     private String title;
     private String thumb;
     private String videoId;
-    private int pageSize;
+    private int source;
 }
