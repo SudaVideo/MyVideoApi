@@ -11,7 +11,6 @@ import com.suda.MyVideoApi.domian.dto.VideoDTO;
 import com.suda.MyVideoApi.util.JsoupUtils;
 import com.suda.MyVideoApi.util.SuplayerUtil;
 import com.suda.MyVideoApi.util.TextUtil;
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

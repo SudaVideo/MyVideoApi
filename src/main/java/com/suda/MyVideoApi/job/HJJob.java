@@ -19,7 +19,7 @@ public class HJJob extends BaseJob<VideoHJServiceImpl> {
     }
 
     /**
-     * 每隔1小时，爬美剧
+     * 每隔1小时，爬韩剧
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startFilm() {
