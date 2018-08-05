@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class VideoDetailDO extends VideoDO {
+public class VideoDetailDO {
     /**
      * 剧集
      */

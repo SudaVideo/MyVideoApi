@@ -23,7 +23,7 @@ public interface VideoService {
      * @return
      * @throws BizException
      */
-    PageDTO queryVideosByTypeNew(String tag, int pageIndex, boolean useCache) throws BizException;
+    PageDTO<VideoDTO> queryVideosByTypeNew(String tag, int pageIndex, boolean useCache) throws BizException;
 
     /**
      * 根据类别查询电影

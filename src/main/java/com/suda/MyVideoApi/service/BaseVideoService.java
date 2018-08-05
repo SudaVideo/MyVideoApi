@@ -1,6 +1,6 @@
 package com.suda.MyVideoApi.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.suda.MyVideoApi.constant.API;
 import com.suda.MyVideoApi.domian.BizException;
 import com.suda.MyVideoApi.domian.PageDTO;
 import com.suda.MyVideoApi.domian.converter.VideoConverter;
@@ -9,37 +9,37 @@ import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
 import com.suda.MyVideoApi.util.JsoupUtils;
+import com.suda.MyVideoApi.util.SuplayerUtil;
 import com.suda.MyVideoApi.util.TextUtil;
+import com.sun.xml.internal.bind.v2.model.core.ID;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import static com.suda.MyVideoApi.constant.URL.BASE_URL;
-import static com.suda.MyVideoApi.constant.URL.RES_SERIES_URL;
-import static com.suda.MyVideoApi.constant.URL.RES_URL;
+import static com.suda.MyVideoApi.domian.converter.VideoConverter.PLAY_SPLITE;
 
 /**
  * @author guhaibo
  * @date 2018/7/29
  */
-@Service
 @AllArgsConstructor
-public class VideoServiceImpl implements VideoService {
+public abstract class BaseVideoService implements VideoService {
+
+    public abstract API getApi();
 
     private RedisTemplate redisTemplate;
 
     @Override
-    public PageDTO queryVideosByTypeNew(String tag, int pageIndex, boolean useCache) throws BizException {
+    public PageDTO<VideoDTO> queryVideosByTypeNew(String tag, int pageIndex, boolean useCache) throws BizException {
         PageDTO pageDTO = new PageDTO();
-        String pageKey = "VideoTypeSize:" + tag;
+        String pageKey = getApi().name() + ":" + "VideoTypeSize:" + tag;
         Integer allPage = (Integer) redisTemplate.opsForValue().get(pageKey);
         if (allPage == null) {
             allPage = 0;
@@ -51,19 +51,15 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public List<VideoDTO> queryVideosByType(String tag, int pageIndex, boolean useCache) throws BizException {
-        String key = "VideoType:" + tag + ":" + pageIndex;
+        String key = getApi().name() + ":" + "VideoType:" + tag + ":" + pageIndex;
         List<VideoDO> videoDOS = (List<VideoDO>) redisTemplate.opsForValue().get(key);
         if (!useCache) {
             videoDOS = null;
         }
-        String pageKey = "VideoTypeSize:" + tag;
-        Integer allPage = (Integer) redisTemplate.opsForValue().get(pageKey);
-        if (allPage == null) {
-            allPage = 0;
-        }
+
         if (videoDOS == null) {
             videoDOS = new ArrayList<>();
-            String video = BASE_URL + tag;
+            String video = getApi().baseUrl + tag;
             if (pageIndex > 1) {
                 video = video + "/page/" + pageIndex;
             }
@@ -72,6 +68,7 @@ public class VideoServiceImpl implements VideoService {
 
             for (Element article : articles) {
                 VideoDO videoDO = new VideoDO();
+                videoDO.setSource(getApi().sourceId);
                 Elements names = article.getElementsByTag("h2");
                 if (names.size() > 0) {
                     videoDO.setTitle(names.get(0).text());
@@ -95,15 +92,18 @@ public class VideoServiceImpl implements VideoService {
                 String key2 = "VideoTitle:" + videoDO.getTitle();
                 redisTemplate.opsForValue().set(key2, videoDO);
 
+//                String key3 = "VideoId:" + videoDO.getOriginUrl().replace(getBaseResUrl(), "");
+//                redisTemplate.opsForValue().set(key3, videoDO);
+
             }
             redisTemplate.opsForValue().set(key, videoDOS);
         }
+
         List<VideoDTO> videoDTOS = new ArrayList<>();
         for (VideoDO videoDO : videoDOS) {
             try {
                 VideoConverter videoConverter = new VideoConverter();
                 VideoDTO videoDTO = new VideoDTO();
-                videoDTO.setPageSize(allPage);
                 videoConverter.convert(videoDO, videoDTO);
                 videoDTOS.add(videoDTO);
             } catch (Exception e) {
@@ -116,8 +116,9 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoDetailDO queryVideosDetail(String videoId, boolean useCache) {
-        String key = "VideoDetailDO:" + videoId;
+        String key = getApi().name() + ":" + "VideoDetailDO:" + videoId;
         VideoDetailDO videoDetailDO = (VideoDetailDO) redisTemplate.opsForValue().get(key);
+
 
         if (!useCache) {
             videoDetailDO = null;
@@ -125,7 +126,7 @@ public class VideoServiceImpl implements VideoService {
 
         if (videoDetailDO == null) {
             videoDetailDO = new VideoDetailDO();
-            getVideoDetail(RES_URL + videoId, videoDetailDO);
+            getVideoDetail(getApi().resUrl + videoId, videoDetailDO);
             redisTemplate.opsForValue().set(key, videoDetailDO);
         }
         return videoDetailDO;
@@ -133,14 +134,13 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public String queryPlayUrl(String videoId, String seriesId) throws BizException {
-        String key = "VideoPlayUrl:" + videoId + ":" + seriesId;
+        String key = getApi().name() + ":" + "VideoPlayUrl:" + videoId + ":" + seriesId;
         String playUrl = (String) redisTemplate.opsForValue().get(key);
-
-        playUrl = null;
         if (playUrl == null) {
-            String seriesUrl = String.format(RES_SERIES_URL, videoId, seriesId);
-            playUrl = getPlayUrl(seriesUrl);
+            String seriesUrl = String.format(getApi().resSeriresUrl, videoId, seriesId).replace(PLAY_SPLITE, "/");
+            playUrl = SuplayerUtil.getPlayUrl(seriesUrl, getApi().sourceId);
             redisTemplate.opsForValue().set(key, playUrl);
+            redisTemplate.expire(key, 1, TimeUnit.HOURS);
         }
         return playUrl;
     }
@@ -165,7 +165,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     private void getVideoDetail(String orgUrl, VideoDetailDO videoDetailDO) {
-        Document pcDocument = JsoupUtils.getDocWithPC(orgUrl);
+        Document pcDocument = JsoupUtils.getDocWithPC(orgUrl.replace(PLAY_SPLITE, "/"));
         Elements jianjies = pcDocument.getElementsByClass("jianjie");
         if (jianjies.size() > 0) {
             List<String> previewImgs = new ArrayList<>();
@@ -191,20 +191,36 @@ public class VideoServiceImpl implements VideoService {
         }
 
 
-        Elements mplay_list = pcDocument.getElementsByClass("mplay-list");
-        Elements article_paging = pcDocument.getElementsByClass("article-paging");
+        List<Elements> elementsList = new ArrayList<>();
+        elementsList.add(pcDocument.getElementsByClass("mplay-list"));
+        elementsList.add(pcDocument.getElementsByClass("article-paging"));
+        elementsList.add(pcDocument.getElementsByClass("video_list_li"));
 
-        Elements serieses = mplay_list.size() > 0 ? mplay_list : article_paging;
+
+        Elements serieses = null;
+        for (Elements elements : elementsList) {
+            if (elements.size() > 0) {
+                serieses = elements;
+                break;
+            }
+        }
+
+        if (serieses == null) {
+            return;
+        }
+
+
         List<VideoSeriesDO> videoSeriesDOS = new ArrayList<>();
         videoDetailDO.setVideoSeries(videoSeriesDOS);
         if (serieses.size() > 0) {
-            for (Element element : serieses.get(0).getElementsByTag("a")) {
-                VideoSeriesDO videoSeriesDO = new VideoSeriesDO();
-                videoSeriesDO.setName(element.text());
 
-                videoSeriesDO.setName(element.text());
-                videoSeriesDO.setSeriesId(element.attr("href").replace("?Play=", ""));
-                String resUrl = orgUrl + element.attr("href");
+            for (Element seriese : serieses) {
+                for (Element element : seriese.getElementsByTag("a")) {
+                    VideoSeriesDO videoSeriesDO = new VideoSeriesDO();
+                    videoSeriesDO.setName(element.text());
+                    videoSeriesDO.setName(element.text());
+                    videoSeriesDO.setSeriesId(element.attr("href").replace("?Play=", ""));
+                    String resUrl = orgUrl + element.attr("href");
 //                try {
 //                    videoSeriesDO.setPlayUrl(getPlayUrl(resUrl));
 //                }catch (Exception e){
@@ -213,76 +229,10 @@ public class VideoServiceImpl implements VideoService {
 //                if (videoSeriesDO.getPlayUrl() != null) {
 //                    videoSeriesDOS.add(videoSeriesDO);
 //                }
-
-                videoSeriesDOS.add(videoSeriesDO);
-            }
-        }
-    }
-
-    private String getPlayUrl(String playerUrl) {
-        Document pcDocument = JsoupUtils.getDocWithPC(playerUrl);
-        Elements script = pcDocument.body().getElementsByTag("script");
-        String scriptText = script.get(1).data();
-        Pattern pattern = Pattern.compile("\"(.*?)\"");
-        Matcher m = pattern.matcher(scriptText);
-        List<String> params = new ArrayList<>();
-        while (m.find()) {
-            params.add(m.group().replace("\"", ""));
-        }
-        String playerUrl2 = "https://api.1suplayer.me/player/?userID=&type="
-                + params.get(0) + "&vkey=" + params.get(1);
-        return getPlayUrl(playerUrl, playerUrl2);
-    }
-
-    private String getPlayUrl(String playerUrl, String playerUrl2) {
-        try {
-            Document pcDocument = JsoupUtils
-                    .getConnection(playerUrl2)
-                    .header("Host", "api.1suplayer.me")
-                    .header("Referer", playerUrl)
-                    .get();
-
-            Elements script = pcDocument.body().getElementsByTag("script");
-            String scriptText = script.get(0).data();
-            Pattern pattern = Pattern.compile(" = '(.+?)'");
-            Matcher m = pattern.matcher(scriptText);
-
-            List<String> params = new ArrayList<>();
-            while (m.find()) {
-                params.add(m.group().replace("= '", "").replace("'", "").trim());
-            }
-
-            Map<String, String> map = new HashMap<>();
-            map.put("type", params.get(3));
-            map.put("vkey", params.get(4));
-            map.put("ckey", params.get(2));
-            map.put("userID", "");
-            map.put("userIP", params.get(0));
-            map.put("refres", "1");
-            map.put("my_url", params.get(1));
-
-            int tryTime = 5;
-            String playUrl = null;
-            while (tryTime > 0 && TextUtil.isStrEmpty(playUrl)) {
-                Document document = JsoupUtils
-                        .getConnection("https://api.1suplayer.me/player/api.php")
-                        .header("Host", "api.1suplayer.me")
-                        .header("Referer", playerUrl2)
-                        .header("Origin", "https://api.1suplayer.me")
-                        .header("X-Requested-With", "XMLHttpRequest")
-                        .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                        .data(map)
-                        .post();
-                try {
-                    playUrl = JSONObject.parseObject(document.body().text()).getString("url");
-                } catch (Exception e) {
+                    videoSeriesDOS.add(videoSeriesDO);
                 }
-                tryTime--;
             }
-            return playUrl;
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
-        return null;
     }
 }

@@ -6,6 +6,7 @@ import com.suda.MyVideoApi.domian.ResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,6 +17,7 @@ import java.io.Writer;
 
 /**
  * 异常处理类
+ *
  * @author guhaibo
  * @date 2018/7/22
  */
@@ -32,6 +34,7 @@ public class MyExceptionHandler {
     @ResponseBody
     ResultDTO MyExceptionHandler(BizException bizException) {
         ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setSuccess(false);
         resultDTO.setErrorCode(bizException.getErrorCode());
         if ("dev".equals(env)) {
             Writer writer = new StringWriter();
@@ -51,8 +54,13 @@ public class MyExceptionHandler {
     @ResponseBody
     ResultDTO MyExceptionHandler(Exception exception) {
         ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setSuccess(false);
         resultDTO.setErrorCode(BizErrorCodeConstants.S0000.getCode());
         resultDTO.setErrorMSG(BizErrorCodeConstants.S0000.getCodeMSG());
+        if (exception instanceof MissingServletRequestParameterException) {
+            resultDTO.setErrorCode(BizErrorCodeConstants.S0004.getCode());
+            resultDTO.setErrorMSG(BizErrorCodeConstants.S0004.getCodeMSG());
+        }
         logger.error("error", exception);
         return resultDTO;
     }

@@ -1,6 +1,6 @@
 package com.suda.MyVideoApi.job;
 
-import com.suda.MyVideoApi.service.VideoDiliServiceImpl;
+import com.suda.MyVideoApi.service.VideoLZServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,22 +12,21 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Log4j2
-public class DililiJob extends BaseJob<VideoDiliServiceImpl> {
-
-    public DililiJob(VideoDiliServiceImpl videoService, RedisTemplate redisTemplate) {
+public class LongzhuJob extends BaseJob<VideoLZServiceImpl> {
+    public LongzhuJob(VideoLZServiceImpl videoService, RedisTemplate redisTemplate) {
         super(videoService, redisTemplate);
     }
 
     /**
-     * 每隔1小时，爬dilili电影
+     * 每隔1小时，爬lz电影
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startFilm() {
-        getVideos("film");
+        getVideos("movies");
     }
 
     /**
-     * 每隔1小时，爬dilili剧集
+     * 每隔1小时，爬lz剧集
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startTeleplay() {
@@ -35,7 +34,7 @@ public class DililiJob extends BaseJob<VideoDiliServiceImpl> {
     }
 
     /**
-     * 每隔1小时，爬dilili动漫
+     * 每隔1小时，爬lz动漫
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startCartoon() {
@@ -43,18 +42,18 @@ public class DililiJob extends BaseJob<VideoDiliServiceImpl> {
     }
 
     /**
-     * 每隔1小时，爬dilili综艺
+     * 每隔1小时，爬lz综艺
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startVarietyShow() {
-        getVideos("variety_show");
+        getVideos("variety");
     }
 
     /**
-     * 每隔1小时，爬dilili记录片
+     * 每隔1小时，爬lz记录片
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startDocumentaryFilm() {
-        getVideos("list11");
+        getVideos("fact");
     }
 }

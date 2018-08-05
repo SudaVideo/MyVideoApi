@@ -15,4 +15,5 @@ public class VideoDO extends BaseDomain {
     private String title;
     private String thumb;
     private String originUrl;
+    private int source;
 }

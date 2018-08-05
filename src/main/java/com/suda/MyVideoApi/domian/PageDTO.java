@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class PageDTO {
+public class PageDTO<T> {
     private int pageSize;
-    private List data;
+    private List<T> data;
 }
