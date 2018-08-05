@@ -1,9 +1,11 @@
 package com.suda.MyVideoApi.controller;
 
 import com.suda.MyVideoApi.constant.API;
+import com.suda.MyVideoApi.constant.Source;
 import com.suda.MyVideoApi.domian.ResultDTO;
 import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
+import com.suda.MyVideoApi.domian.dto.VideoSourceDTO;
 import com.suda.MyVideoApi.service.VideoService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +40,21 @@ public class VideoController {
     }
 
     /**
+     * 查询视频源
+     *
+     * @return
+     */
+    @GetMapping("/source")
+    public ResultDTO<List<VideoSourceDTO>> qureySource() {
+        //film  teleplay cartoon variety_show
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setSuccess(true);
+        resultDTO.setData(Source.videoSourceDTOS);
+        return resultDTO;
+    }
+
+
+    /**
      * 根据类别查询视频
      *
      * @param type
@@ -45,17 +62,11 @@ public class VideoController {
      * @return
      */
     @GetMapping("/page")
-    public ResultDTO<List<VideoDTO>> queryVideosByType(@RequestParam String type, @RequestParam int pageIndex) {
+    public ResultDTO<List<VideoDTO>> queryVideosByType(@RequestParam int source, @RequestParam String type, @RequestParam int pageIndex) {
         //film  teleplay cartoon variety_show
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setSuccess(true);
-        if ("all_mj".equals(type)) {
-            resultDTO.setData(videoMjwServiceImpl.queryVideosByTypeNew(type, pageIndex, true));
-        } else if ("hanju".equals(type)) {
-            resultDTO.setData(videoHjServiceImpl.queryVideosByTypeNew(type, pageIndex, true));
-        } else {
-            resultDTO.setData(videoDiliServiceImpl.queryVideosByTypeNew(type, pageIndex, true));
-        }
+        resultDTO.setData(getVideoService(source).queryVideosByTypeNew(type, pageIndex, true));
         return resultDTO;
     }
 
