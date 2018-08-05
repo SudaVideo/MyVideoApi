@@ -149,13 +149,19 @@ public abstract class BaseVideoService implements VideoService {
         String pattern = "VideoTitle:*" + search + "*";
         Set<String> keys = redisTemplate.keys(pattern);
         List<VideoDTO> videoDTOS = new ArrayList<>();
+        int max = Math.min(5, keys.size());
+        int i = 0;
         for (String key : keys) {
+            if (i == max) {
+                break;
+            }
             VideoDO videoDO = (VideoDO) redisTemplate.opsForValue().get(key);
             try {
                 VideoDTO videoDTO = new VideoDTO();
                 VideoConverter videoConverter = new VideoConverter();
                 videoConverter.convert(videoDO, videoDTO);
                 videoDTOS.add(videoDTO);
+                i++;
             } catch (Exception e) {
                 continue;
             }
