@@ -3,6 +3,7 @@ package com.suda.MyVideoApi.util;
 import com.alibaba.fastjson.JSONObject;
 import com.suda.MyVideoApi.constant.API;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -18,41 +19,42 @@ import java.util.regex.Pattern;
  * @date 2018/8/5
  */
 public class SuplayerUtil {
-    public static String getPlayUrl(String playerUrl, int source) {
-        Document pcDocument = JsoupUtils.getDocWithPC(playerUrl);
-        Elements script = pcDocument.body().getElementsByTag("script");
 
-        String scriptText = "";
-        if (source == API.DILI.sourceId || source == API.LZ.sourceId) {
-            scriptText = script.get(1).data();
+    public static String getPlayUrl(String refereUrl, int source) {
+        Document pcDocument = JsoupUtils.getDocWithPC(refereUrl);
+        if (source == API.CARTOON.sourceId) {
+            String playerUrl  = pcDocument.getElementsByClass("player").first().attr("src");
+            return getPlayUrl(refereUrl, playerUrl, "https://api.1suplayer.me/player/api.php");
         } else {
-            scriptText = script.get(0).data();
-        }
-
-
-        Pattern pattern = Pattern.compile("\"(.*?)\"");
-        Matcher m = pattern.matcher(scriptText);
-        List<String> params = new ArrayList<>();
-        while (m.find()) {
-            params.add(m.group().replace("\"", ""));
-        }
-
-        if (source == API.LZ.sourceId) {
-            String playerUrl2 = "http://www.lzvod.net/player/?type=" + params.get(0) + "&vkey=" + params.get(1);
-            return getPlayUrl(playerUrl, playerUrl2, "http://www.lzvod.net/player/1suplayer.php");
-        } else {
-            String playerUrl2 = "https://api.1suplayer.me/player/?userID=&type="
-                    + params.get(0) + "&vkey=" + params.get(1);
-            return getPlayUrl(playerUrl, playerUrl2, "https://api.1suplayer.me/player/api.php");
+            Elements script = pcDocument.body().getElementsByTag("script");
+            String scriptText = "";
+            if (source == API.DILI.sourceId || source == API.LZ.sourceId) {
+                scriptText = script.get(1).data();
+            } else {
+                scriptText = script.get(0).data();
+            }
+            Pattern pattern = Pattern.compile("\"(.*?)\"");
+            Matcher m = pattern.matcher(scriptText);
+            List<String> params = new ArrayList<>();
+            while (m.find()) {
+                params.add(m.group().replace("\"", ""));
+            }
+            if (source == API.LZ.sourceId) {
+                String playerUrl = "http://www.lzvod.net/player/?type=" + params.get(0) + "&vkey=" + params.get(1);
+                return getPlayUrl(refereUrl, playerUrl, "http://www.lzvod.net/player/1suplayer.php");
+            } else {
+                String playerUrl = "https://api.1suplayer.me/player/?userID=&type="
+                        + params.get(0) + "&vkey=" + params.get(1);
+                return getPlayUrl(refereUrl, playerUrl, "https://api.1suplayer.me/player/api.php");
+            }
         }
     }
 
-    private static String getPlayUrl(String playerUrl, String playerUrl2, String api) {
+    private static String getPlayUrl(String refererUrl, String playerUrl, String api) {
         try {
             Document pcDocument = JsoupUtils
-                    .getConnection(playerUrl2)
-//                    .header("Host", "api.1suplayer.me")
-                    .header("Referer", playerUrl)
+                    .getConnection(playerUrl)
+                    .header("Referer", refererUrl)
                     .get();
 
             Elements script = pcDocument.body().getElementsByTag("script");
@@ -79,11 +81,7 @@ public class SuplayerUtil {
             while (tryTime > 0 && TextUtil.isStrEmpty(playUrl)) {
                 Document document = JsoupUtils
                         .getConnection(api)
-//                        .header("Host", "api.1suplayer.me")
-                        .header("Referer", playerUrl2)
-//                        .header("Origin", "https://api.1suplayer.me")
-//                        .header("X-Requested-With", "XMLHttpRequest")
-//                        .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                        .header("Referer", playerUrl)
                         .data(map)
                         .post();
                 try {

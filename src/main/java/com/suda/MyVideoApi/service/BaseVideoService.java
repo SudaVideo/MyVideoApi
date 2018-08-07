@@ -18,6 +18,7 @@ import org.jsoup.select.Elements;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,7 @@ public abstract class BaseVideoService implements VideoService {
 
     public abstract API getApi();
 
-    private RedisTemplate redisTemplate;
+    protected RedisTemplate redisTemplate;
 
     @Override
     public PageDTO<VideoDTO> queryVideosByTypeNew(String tag, int pageIndex, boolean useCache) throws BizException {
@@ -63,37 +64,17 @@ public abstract class BaseVideoService implements VideoService {
                 video = video + "/page/" + pageIndex;
             }
             Document pcDocument = JsoupUtils.getDocWithPC(video);
-            Elements articles = pcDocument.getElementsByTag("article");
 
-            for (Element article : articles) {
+            for (Element article : parseItems(pcDocument)) {
                 VideoDO videoDO = new VideoDO();
                 videoDO.setSource(getApi().sourceId);
-                Elements names = article.getElementsByTag("h2");
-                if (names.size() > 0) {
-                    videoDO.setTitle(names.get(0).text());
-                }
-                Elements thumbs = article.getElementsByClass("thumb");
-                if (thumbs.size() > 0) {
-                    String Thumb = thumbs.get(0).attr("data-original");
-                    if (Thumb.indexOf("http") >= 0) {
-                        videoDO.setThumb(Thumb);
-                    } else {
-                        videoDO.setThumb("https:" + Thumb);
-                    }
-                }
-
-                Elements urls = article.getElementsByTag("a");
-                if (urls.size() > 0) {
-                    videoDO.setOriginUrl(urls.get(0).attr("href"));
-                }
+                videoDO.setTitle(parseName(article));
+                videoDO.setOriginUrl(parseOriginUrl(article));
+                videoDO.setThumb(parseThumb(article));
                 videoDOS.add(videoDO);
 
                 String key2 = "VideoTitle:" + videoDO.getTitle();
                 redisTemplate.opsForValue().set(key2, videoDO);
-
-//                String key3 = "VideoId:" + videoDO.getOriginUrl().replace(getBaseResUrl(), "");
-//                redisTemplate.opsForValue().set(key3, videoDO);
-
             }
             redisTemplate.opsForValue().set(key, videoDOS);
         }
@@ -118,14 +99,18 @@ public abstract class BaseVideoService implements VideoService {
         String key = getApi().name() + ":" + "VideoDetailDO:" + videoId;
         VideoDetailDO videoDetailDO = (VideoDetailDO) redisTemplate.opsForValue().get(key);
 
-
         if (!useCache) {
             videoDetailDO = null;
         }
 
         if (videoDetailDO == null) {
             videoDetailDO = new VideoDetailDO();
-            getVideoDetail(getApi().resUrl + videoId, videoDetailDO);
+
+            Document pcDocument = JsoupUtils.getDocWithPC(getApi().resUrl + videoId.replace(PLAY_SPLITE, "/"));
+            videoDetailDO.setDesc(parseVideoDesc(pcDocument));
+            videoDetailDO.setPreviewImgs(parsePreviewImgs(pcDocument));
+            videoDetailDO.setVideoSeries(parseVideoSeries(pcDocument));
+
             redisTemplate.opsForValue().set(key, videoDetailDO);
         }
         return videoDetailDO;
@@ -169,39 +154,116 @@ public abstract class BaseVideoService implements VideoService {
         return videoDTOS;
     }
 
-    private void getVideoDetail(String orgUrl, VideoDetailDO videoDetailDO) {
-        Document pcDocument = JsoupUtils.getDocWithPC(orgUrl.replace(PLAY_SPLITE, "/"));
-        Elements jianjies = pcDocument.getElementsByClass("jianjie");
-        if (jianjies.size() > 0) {
-            List<String> previewImgs = new ArrayList<>();
+    /**
+     * 解析条目
+     *
+     * @param document
+     * @return
+     */
+    protected Elements parseItems(Document document) {
+        return document.getElementsByTag("article");
+    }
 
-            videoDetailDO.setPreviewImgs(previewImgs);
+    /**
+     * 解析标题
+     *
+     * @param item
+     * @return
+     */
+    protected String parseName(Element item) {
+        Elements names = item.getElementsByTag("h2");
+        if (names.size() > 0) {
+            return names.get(0).text();
+        }
+        return "";
+    }
 
-            Elements previewImgEl = jianjies.get(0).getElementsByTag("img");
-            for (Element element : previewImgEl) {
-                String Thumb = element.attr("data-original");
-                if (Thumb.indexOf("http") >= 0) {
-                    previewImgs.add(Thumb);
-                } else {
-                    previewImgs.add("https:" + Thumb);
-                }
+    /**
+     * 解析封面
+     *
+     * @param item
+     * @return
+     */
+    protected String parseThumb(Element item) {
+        Elements thumbs = item.getElementsByClass("thumb");
+        if (thumbs.size() > 0) {
+            String thumb = thumbs.get(0).attr("data-original");
+            if (thumb.indexOf("http") >= 0) {
+                return thumb;
+            } else {
+                return "https:" + thumb;
             }
+        }
+        return "";
+    }
+
+    /**
+     * 解析原始地址
+     *
+     * @param item
+     * @return
+     */
+    protected String parseOriginUrl(Element item) {
+        Elements urls = item.getElementsByTag("a");
+        if (urls.size() > 0) {
+            return urls.get(0).attr("href");
+        }
+        return "";
+    }
+
+    /**
+     * 解析介绍
+     *
+     * @param document
+     * @return
+     */
+    protected String parseVideoDesc(Document document) {
+        Elements jianjies = document.getElementsByClass("jianjie");
+        if (jianjies.size() > 0) {
             jianjies = jianjies.get(0).getElementsByTag("span");
             if (jianjies.size() > 0) {
                 String jianjie = jianjies.get(0).text();
                 if (!TextUtil.isStrEmpty(jianjie)) {
-                    videoDetailDO.setDesc(jianjie.trim());
+                    return jianjie.trim();
                 }
             }
         }
+        return "";
+    }
 
-
+    /**
+     * 解析预览图
+     *
+     * @param document
+     * @return
+     */
+    protected List<String> parsePreviewImgs(Document document) {
+        List<String> previewImgs = new ArrayList<>();
+        Elements jianjies = document.getElementsByClass("jianjie");
+        if (jianjies.size() > 0) {
+            Elements previewImgEl = jianjies.get(0).getElementsByTag("img");
+            for (Element element : previewImgEl) {
+                String thumb = element.attr("data-original");
+                if (thumb.indexOf("http") >= 0) {
+                    previewImgs.add(thumb);
+                } else {
+                    previewImgs.add("https:" + thumb);
+                }
+            }
+        }
+        return previewImgs;
+    }
+    /**
+     * 解析剧集
+     *
+     * @param document
+     * @return
+     */
+    protected List<VideoSeriesDO> parseVideoSeries(Document document) {
         List<Elements> elementsList = new ArrayList<>();
-        elementsList.add(pcDocument.getElementsByClass("mplay-list"));
-        elementsList.add(pcDocument.getElementsByClass("article-paging"));
-        elementsList.add(pcDocument.getElementsByClass("video_list_li"));
-
-
+        elementsList.add(document.getElementsByClass("mplay-list"));
+        elementsList.add(document.getElementsByClass("article-paging"));
+        elementsList.add(document.getElementsByClass("video_list_li"));
         Elements serieses = null;
         for (Elements elements : elementsList) {
             if (elements.size() > 0) {
@@ -209,35 +271,21 @@ public abstract class BaseVideoService implements VideoService {
                 break;
             }
         }
-
         if (serieses == null) {
-            return;
+            return Collections.emptyList();
         }
 
-
         List<VideoSeriesDO> videoSeriesDOS = new ArrayList<>();
-        videoDetailDO.setVideoSeries(videoSeriesDOS);
         if (serieses.size() > 0) {
-
             for (Element seriese : serieses) {
                 for (Element element : seriese.getElementsByTag("a")) {
                     VideoSeriesDO videoSeriesDO = new VideoSeriesDO();
                     videoSeriesDO.setName(element.text());
-                    videoSeriesDO.setName(element.text());
                     videoSeriesDO.setSeriesId(element.attr("href").replace("?Play=", ""));
-                    String resUrl = orgUrl + element.attr("href");
-//                try {
-//                    videoSeriesDO.setPlayUrl(getPlayUrl(resUrl));
-//                }catch (Exception e){
-//                    continue;
-//                }
-//                if (videoSeriesDO.getPlayUrl() != null) {
-//                    videoSeriesDOS.add(videoSeriesDO);
-//                }
                     videoSeriesDOS.add(videoSeriesDO);
                 }
             }
-
         }
+        return videoSeriesDOS;
     }
 }
