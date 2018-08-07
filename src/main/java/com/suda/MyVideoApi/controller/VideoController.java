@@ -25,6 +25,7 @@ public class VideoController {
     private final VideoService videoMjwServiceImpl;
     private final VideoService videoHjServiceImpl;
     private final VideoService videoLZServiceImpl;
+    private final VideoService videoCartoonServiceImpl;
 
     private VideoService getVideoService(int source) {
         if (source == API.DILI.sourceId) {
@@ -35,6 +36,8 @@ public class VideoController {
             return videoHjServiceImpl;
         } else if (source == API.LZ.sourceId) {
             return videoLZServiceImpl;
+        } else if (source == API.CARTOON.sourceId) {
+            return videoCartoonServiceImpl;
         }
         return null;
     }

@@ -11,7 +11,10 @@ public enum API {
     DILI(0, "https://www.dililitv.com/", "https://www.dililitv.com/gresource/", "https://www.dililitv.com/gresource/%s?Play=%s"),
     MJW(1, "https://91mjw.com/category/", "https://91mjw.com/video/", "https://91mjw.com/video/%s?Play=%s"),
     HJ(2, "https://www.hmtv.me/", "https://www.hmtv.me/show/", "https://www.hmtv.me/show/%s?Play=%s"),
-    LZ(3, "http://www.lzvod.net/", "http://www.lzvod.net/", "http://www.lzvod.net/%s?Play=%s");
+    LZ(3, "http://www.lzvod.net/", "http://www.lzvod.net/", "http://www.lzvod.net/%s?Play=%s"),
+    CARTOON(4, "http://www.domanwo.com/category/", "http://www.domanwo.com/", "http://www.domanwo.com/%s?Play-%s.html"),
+
+    ;
 
 
     public static API getApiBySourceId(int sourceId) {
