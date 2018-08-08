@@ -7,6 +7,12 @@ jdk，redis
 
 ## 如果觉得本项目对你有帮助，欢迎捐赠
 
+
+| 红包码 |
+| ------ | 
+| ![红包码](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/hongbaoma.jpg) |
+
+
 | 微信 | 支付宝 |
 | ------ | ------ |
 | ![微信](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/weixin.jpg) | ![支付宝](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/zhifubao.jpg) |
