@@ -21,6 +21,7 @@ public class Source {
 
         videoSourceDTOS.add(new VideoSourceDTO(API.DILI.sourceId, "cartoon", "动漫1"));
         videoSourceDTOS.add(new VideoSourceDTO(API.LZ.sourceId, "cartoon", "动漫2"));
+        videoSourceDTOS.add(new VideoSourceDTO(API.CARTOON.sourceId, "all", "动漫3"));
 
         videoSourceDTOS.add(new VideoSourceDTO(API.DILI.sourceId, "variety_show", "综艺1"));
         videoSourceDTOS.add(new VideoSourceDTO(API.LZ.sourceId, "variety", "综艺2"));
@@ -31,6 +32,5 @@ public class Source {
         videoSourceDTOS.add(new VideoSourceDTO(API.MJW.sourceId, "all_mj", "美剧"));
         videoSourceDTOS.add(new VideoSourceDTO(API.HJ.sourceId, "hanju", "韩剧"));
 
-        videoSourceDTOS.add(new VideoSourceDTO(API.CARTOON.sourceId, "all", "动漫"));
     }
 }
