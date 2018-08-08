@@ -73,7 +73,7 @@ public abstract class BaseVideoService implements VideoService {
                 videoDO.setThumb(parseThumb(article));
                 videoDOS.add(videoDO);
 
-                String key2 = "VideoTitle:" + videoDO.getTitle();
+                String key2 = "VideoTitle:" + videoDO.getTitle() + "(源" + getApi().sourceId + ")";
                 redisTemplate.opsForValue().set(key2, videoDO);
             }
             redisTemplate.opsForValue().set(key, videoDOS);
@@ -253,6 +253,7 @@ public abstract class BaseVideoService implements VideoService {
         }
         return previewImgs;
     }
+
     /**
      * 解析剧集
      *
