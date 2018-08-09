@@ -51,7 +51,7 @@ public class DililiJob extends BaseJob<VideoDiliServiceImpl> {
     }
 
     /**
-     * 每隔1小时，爬dilili记录片
+     * 每隔1小时，爬dilili纪录片
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startDocumentaryFilm() {

@@ -50,7 +50,7 @@ public class LongzhuJob extends BaseJob<VideoLZServiceImpl> {
     }
 
     /**
-     * 每隔1小时，爬lz记录片
+     * 每隔1小时，爬lz纪录片
      */
     @Scheduled(fixedRate = 60 * 60 * 1000)
     public void startDocumentaryFilm() {
