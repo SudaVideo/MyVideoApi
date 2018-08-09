@@ -10,5 +10,4 @@ jdk，redis
 
 | 微信 | 红包码 | 支付宝 |
 | ------ | ------ | ------ |
-| ![微信](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/weixin.jpg) | ![支付宝](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/hongbaoma.jpg) | ![微信](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/weixin.jpg) |
-
+| ![微信](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/weixin.jpg) | ![红包码](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/hongbaoma.jpg) | ![支付宝](https://raw.githubusercontent.com/SudaVideo/MyVideoApi/master/image/zhifubao.jpg) |
