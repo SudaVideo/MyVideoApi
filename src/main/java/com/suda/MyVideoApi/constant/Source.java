@@ -26,8 +26,8 @@ public class Source {
         videoSourceDTOS.add(new VideoSourceDTO(API.DILI.sourceId, "variety_show", "综艺1"));
         videoSourceDTOS.add(new VideoSourceDTO(API.LZ.sourceId, "variety", "综艺2"));
 
-        videoSourceDTOS.add(new VideoSourceDTO(API.DILI.sourceId, "list11", "记录1"));
-        videoSourceDTOS.add(new VideoSourceDTO(API.LZ.sourceId, "fact", "记录2"));
+        videoSourceDTOS.add(new VideoSourceDTO(API.DILI.sourceId, "list11", "纪录1"));
+        videoSourceDTOS.add(new VideoSourceDTO(API.LZ.sourceId, "fact", "纪录2"));
 
         videoSourceDTOS.add(new VideoSourceDTO(API.MJW.sourceId, "all_mj", "美剧"));
         videoSourceDTOS.add(new VideoSourceDTO(API.HJ.sourceId, "hanju", "韩剧"));
