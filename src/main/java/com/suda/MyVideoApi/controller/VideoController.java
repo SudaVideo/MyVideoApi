@@ -60,8 +60,9 @@ public class VideoController {
     /**
      * 根据类别查询视频
      *
-     * @param type
-     * @param pageIndex
+     * @param source    源id
+     * @param type      类型
+     * @param pageIndex 页数
      * @return
      */
     @GetMapping("/page")
@@ -76,7 +77,8 @@ public class VideoController {
     /**
      * 查询视频详情
      *
-     * @param videoId
+     * @param videoId 视频id
+     * @param source  源id
      * @return
      */
     @GetMapping("/detail")
@@ -88,9 +90,9 @@ public class VideoController {
     }
 
     /**
-     * 查询视频播放地址
+     * 根据名称查视频
      *
-     * @param videoName
+     * @param videoName 视频名称
      * @return
      */
     @GetMapping("/search")
@@ -104,7 +106,9 @@ public class VideoController {
     /**
      * 查询视频播放地址
      *
-     * @param videoId
+     * @param videoId  视频id
+     * @param seriesId 集数id
+     * @param source   源id
      * @return
      */
     @GetMapping("/playUrl")
