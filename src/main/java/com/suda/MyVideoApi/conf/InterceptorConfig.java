@@ -35,6 +35,7 @@ public class InterceptorConfig implements HandlerInterceptor {
                 for (String allow : allowOrigin.split(",")) {
                     if (allow.equals(origin)) {
                         httpServletResponse.setHeader("Access-Control-Allow-Origin", "*");
+                        break;
                     }
                 }
             }
