@@ -5,11 +5,11 @@
 
 	<groupId>com.suda</groupId>
 	<artifactId>MyVideoApi</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
 	<name>MyVedioApi</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Provide VideoApi</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

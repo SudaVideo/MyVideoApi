@@ -10,7 +10,7 @@ jdk，redis
   1.  前往https://github.com/SudaVideo/MyVideoApi/releases 下载最新jar包
   2.  配置jdk
   3.  安装redis，centos参照https://www.cnblogs.com/renzhicai/p/7773080.html 并修改密码为123456
-  4.  执行 java -jar XXXX.jar --server.port=8080 --spring.redis.password=123456
+  4.  执行 java -jar XXXX.jar --server.port=8080 --spring.redis.password=123456 --spring.siteName=xxxxx --spring.contactEmail=xxxxxx
   5.  访问 http://ip:8080
   
 ## api
