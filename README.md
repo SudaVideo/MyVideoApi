@@ -164,6 +164,19 @@ jdk，redis
 }
 ```
 
+### 查询站点信息
+    /video/source
+接口返回
+```
+{
+  "data": {
+    "siteName": "xxxxx",
+    "contactEmail": "xxxx@xx.com"
+  },
+  "success": true
+}
+```
+
 ## 如果觉得本项目对你有帮助，欢迎捐赠
 
 
