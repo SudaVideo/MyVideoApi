@@ -4,10 +4,11 @@ import com.suda.MyVideoApi.constant.API;
 import com.suda.MyVideoApi.constant.Source;
 import com.suda.MyVideoApi.domian.ResultDTO;
 import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
+import com.suda.MyVideoApi.domian.dto.SiteInfoDTO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
 import com.suda.MyVideoApi.domian.dto.VideoSourceDTO;
 import com.suda.MyVideoApi.service.VideoService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,14 +19,27 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/video")
-@AllArgsConstructor
 public class VideoController {
+
+    @Value("${spring.siteName}")
+    private String siteName;
+
+    @Value("${spring.contactEmail}")
+    private String contactEmail;
 
     private final VideoService videoDiliServiceImpl;
     private final VideoService videoMjwServiceImpl;
     private final VideoService videoHjServiceImpl;
     private final VideoService videoLZServiceImpl;
     private final VideoService videoCartoonServiceImpl;
+
+    public VideoController(VideoService videoDiliServiceImpl, VideoService videoMjwServiceImpl, VideoService videoHjServiceImpl, VideoService videoLZServiceImpl, VideoService videoCartoonServiceImpl) {
+        this.videoDiliServiceImpl = videoDiliServiceImpl;
+        this.videoMjwServiceImpl = videoMjwServiceImpl;
+        this.videoHjServiceImpl = videoHjServiceImpl;
+        this.videoLZServiceImpl = videoLZServiceImpl;
+        this.videoCartoonServiceImpl = videoCartoonServiceImpl;
+    }
 
     private VideoService getVideoService(int source) {
         if (source == API.DILI.sourceId) {
@@ -116,6 +130,20 @@ public class VideoController {
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setSuccess(true);
         resultDTO.setData(getVideoService(source).queryPlayUrl(videoId, seriesId));
+        return resultDTO;
+    }
+
+    /**
+     * 查询站点信息
+     */
+    @GetMapping("/siteInfo")
+    public ResultDTO<String> querySiteInfo() {
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setSuccess(true);
+        SiteInfoDTO siteInfoDTO = new SiteInfoDTO();
+        siteInfoDTO.setSiteName(siteName);
+        siteInfoDTO.setContactEmail(contactEmail);
+        resultDTO.setData(siteInfoDTO);
         return resultDTO;
     }
 
