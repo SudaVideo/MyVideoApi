@@ -12,6 +12,9 @@ jdk，redis
   3.  安装redis，centos参照https://www.cnblogs.com/renzhicai/p/7773080.html 并修改密码为123456
   4.  执行 java -jar XXXX.jar --server.port=8080 --spring.redis.password=123456 --spring.siteName=xxxxx --spring.contactEmail=xxxxxx
   5.  访问 http://ip:8080
+ 
+## 补充说明
+    本项目仅用于学习,任何单位或个人不得将项目用于商业目的。
   
 ## api
 
