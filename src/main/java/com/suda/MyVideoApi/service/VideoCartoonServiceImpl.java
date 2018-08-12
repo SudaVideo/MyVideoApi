@@ -4,12 +4,14 @@ import com.suda.MyVideoApi.constant.API;
 import com.suda.MyVideoApi.domian.BizException;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
-import com.suda.MyVideoApi.util.TextUtil;
+import com.suda.MyVideoApi.util.JsoupUtils;
+import com.suda.MyVideoApi.util.SuplayerUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +19,7 @@ import java.util.List;
 
 /**
  * 动漫
+ *
  * @author guhaibo
  * @date 2018/7/29
  */
@@ -40,18 +43,18 @@ public class VideoCartoonServiceImpl extends BaseVideoService {
 
     @Override
     protected String parseName(Element item) {
-        Elements names = item.getElementsByTag("a");
-        if (names.size() > 0) {
-            return names.get(0).text();
+        Element nameEl = item.getElementsByTag("a").first();
+        if (nameEl != null) {
+            return nameEl.text();
         }
         return "";
     }
 
     @Override
     protected String parseThumb(Element item) {
-        Elements names = item.getElementsByTag("img");
-        if (names.size() > 0) {
-            String thumb = names.get(0).attr("src");
+        Element thumbEl = item.getElementsByTag("img").first();
+        if (thumbEl != null) {
+            String thumb = thumbEl.attr("src");
             if (thumb.indexOf("http") >= 0) {
                 return thumb;
             } else {
@@ -68,11 +71,11 @@ public class VideoCartoonServiceImpl extends BaseVideoService {
 
     @Override
     protected String parseVideoDesc(Document document) {
-        Elements jianjies = document.getElementsByClass("jj");
-        if (jianjies.size() > 0) {
-            String jianjie = jianjies.get(0).text();
-            if (!TextUtil.isStrEmpty(jianjie)) {
-                return jianjie.trim();
+        Element descEl = document.getElementsByClass("jj").first();
+        if (descEl != null) {
+            String desc = descEl.text();
+            if (!StringUtils.isEmpty(desc)) {
+                return desc.trim();
             }
         }
         return "";
@@ -81,9 +84,9 @@ public class VideoCartoonServiceImpl extends BaseVideoService {
     @Override
     protected List<String> parsePreviewImgs(Document document) {
         List<String> previewImgs = new ArrayList<>();
-        Elements carousel_inners = document.getElementsByClass("carousel-inner");
-        if (carousel_inners.size() > 0) {
-            Elements previewImgEl = carousel_inners.get(0).getElementsByTag("img");
+        Element carouselInnersEl = document.getElementsByClass("carousel-inner").first();
+        if (carouselInnersEl != null) {
+            Elements previewImgEl = carouselInnersEl.getElementsByTag("img");
             for (Element element : previewImgEl) {
                 String thumb = element.attr("src");
                 if (thumb.indexOf("http") >= 0) {
@@ -116,5 +119,12 @@ public class VideoCartoonServiceImpl extends BaseVideoService {
             videoSeriesDOS.add(videoSeriesDO);
         }
         return videoSeriesDOS;
+    }
+
+    @Override
+    protected String parsePlayUrl(String refererUrl) {
+        Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
+        String playerUrl = pcDocument.getElementsByClass("player").first().attr("src");
+        return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "https://api.1suplayer.me/player/api.php");
     }
 }

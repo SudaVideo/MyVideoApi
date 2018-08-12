@@ -9,13 +9,12 @@ import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
 import com.suda.MyVideoApi.util.JsoupUtils;
-import com.suda.MyVideoApi.util.SuplayerUtil;
-import com.suda.MyVideoApi.util.TextUtil;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,7 +121,7 @@ public abstract class BaseVideoService implements VideoService {
         String playUrl = (String) redisTemplate.opsForValue().get(key);
         if (playUrl == null) {
             String seriesUrl = String.format(getApi().resSeriresUrl, videoId, seriesId).replace(PLAY_SPLITE, "/");
-            playUrl = SuplayerUtil.getPlayUrl(seriesUrl, getApi().sourceId);
+            playUrl = parsePlayUrl(seriesUrl);
             redisTemplate.opsForValue().set(key, playUrl);
             redisTemplate.expire(key, 1, TimeUnit.HOURS);
         }
@@ -171,9 +170,9 @@ public abstract class BaseVideoService implements VideoService {
      * @return
      */
     protected String parseName(Element item) {
-        Elements names = item.getElementsByTag("h2");
-        if (names.size() > 0) {
-            return names.get(0).text();
+        Element nameEl = item.getElementsByTag("h2").first();
+        if (nameEl != null) {
+            return nameEl.text();
         }
         return "";
     }
@@ -185,9 +184,9 @@ public abstract class BaseVideoService implements VideoService {
      * @return
      */
     protected String parseThumb(Element item) {
-        Elements thumbs = item.getElementsByClass("thumb");
-        if (thumbs.size() > 0) {
-            String thumb = thumbs.get(0).attr("data-original");
+        Element thumbEl = item.getElementsByClass("thumb").first();
+        if (thumbEl != null) {
+            String thumb = thumbEl.attr("data-original");
             if (thumb.indexOf("http") >= 0) {
                 return thumb;
             } else {
@@ -218,13 +217,13 @@ public abstract class BaseVideoService implements VideoService {
      * @return
      */
     protected String parseVideoDesc(Document document) {
-        Elements jianjies = document.getElementsByClass("jianjie");
-        if (jianjies.size() > 0) {
-            jianjies = jianjies.get(0).getElementsByTag("span");
-            if (jianjies.size() > 0) {
-                String jianjie = jianjies.get(0).text();
-                if (!TextUtil.isStrEmpty(jianjie)) {
-                    return jianjie.trim();
+        Element descEl = document.getElementsByClass("jianjie").first();
+        if (descEl != null) {
+            descEl = descEl.getElementsByTag("span").first();
+            if (descEl != null) {
+                String desc = descEl.text();
+                if (!StringUtils.isEmpty(desc)) {
+                    return desc.trim();
                 }
             }
         }
@@ -239,9 +238,9 @@ public abstract class BaseVideoService implements VideoService {
      */
     protected List<String> parsePreviewImgs(Document document) {
         List<String> previewImgs = new ArrayList<>();
-        Elements jianjies = document.getElementsByClass("jianjie");
-        if (jianjies.size() > 0) {
-            Elements previewImgEl = jianjies.get(0).getElementsByTag("img");
+        Element jianjiesEl = document.getElementsByClass("jianjie").first();
+        if (jianjiesEl != null) {
+            Elements previewImgEl = jianjiesEl.getElementsByTag("img");
             for (Element element : previewImgEl) {
                 String thumb = element.attr("data-original");
                 if (thumb.indexOf("http") >= 0) {
@@ -289,4 +288,12 @@ public abstract class BaseVideoService implements VideoService {
         }
         return videoSeriesDOS;
     }
+
+    /**
+     * 解析视频播放链接
+     *
+     * @param refererUrl
+     * @return
+     */
+    protected abstract String parsePlayUrl(String refererUrl);
 }

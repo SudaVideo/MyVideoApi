@@ -44,17 +44,17 @@ public class InterceptorConfig implements HandlerInterceptor {
         httpServletResponse.setHeader("Access-Control-Allow-Methods", "*");
         httpServletResponse.setHeader("Access-Control-Allow-Headers", "*");
 
-        logger.info("---------------------开始进入请求地址拦截----------------------------");
+        //logger.info("---------------------开始进入请求地址拦截----------------------------");
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView) throws Exception {
-        logger.info("---------------------处理请求完成后视图渲染之前的处理操作---------------");
+        //logger.info("---------------------处理请求完成后视图渲染之前的处理操作---------------");
     }
 
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
-        logger.info("---------------------视图渲染之后的操作-------------------------------");
+        //logger.info("---------------------视图渲染之后的操作-------------------------------");
     }
 }
