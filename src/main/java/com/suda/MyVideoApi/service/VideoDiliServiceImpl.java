@@ -33,7 +33,7 @@ public class VideoDiliServiceImpl extends BaseVideoService {
     protected String parsePlayUrl(String refererUrl) {
         Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
         Elements script = pcDocument.body().getElementsByTag("script");
-        String scriptText = script.get(1).data();
+        String scriptText = script.get(0).data();
         Pattern pattern = Pattern.compile("\"(.*?)\"");
         Matcher m = pattern.matcher(scriptText);
         List<String> params = new ArrayList<>();
