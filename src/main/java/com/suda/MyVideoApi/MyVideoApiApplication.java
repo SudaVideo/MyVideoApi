@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-public class MyVedioApiApplication {
+public class MyVideoApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MyVedioApiApplication.class, args);
+		SpringApplication.run(MyVideoApiApplication.class, args);
 	}
 }
