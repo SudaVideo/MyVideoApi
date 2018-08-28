@@ -122,8 +122,10 @@ public abstract class BaseVideoService implements VideoService {
         if (playUrl == null) {
             String seriesUrl = String.format(getApi().resSeriresUrl, videoId, seriesId).replace(PLAY_SPLITE, "/");
             playUrl = parsePlayUrl(seriesUrl);
-            redisTemplate.opsForValue().set(key, playUrl);
-            redisTemplate.expire(key, 1, TimeUnit.HOURS);
+            if (!StringUtils.isEmpty(playUrl)) {
+                redisTemplate.opsForValue().set(key, playUrl);
+                redisTemplate.expire(key, 1, TimeUnit.HOURS);
+            }
         }
         return playUrl;
     }
