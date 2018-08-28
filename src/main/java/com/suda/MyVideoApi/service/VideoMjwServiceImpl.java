@@ -4,6 +4,7 @@ import com.suda.MyVideoApi.constant.API;
 import com.suda.MyVideoApi.util.JsoupUtils;
 import com.suda.MyVideoApi.util.SuplayerUtil;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,21 @@ public class VideoMjwServiceImpl extends BaseVideoService {
     @Override
     protected String parsePlayUrl(String refererUrl) {
         Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
-        Elements script = pcDocument.body().getElementsByTag("script");
-        String scriptText = script.get(0).data();
-        Pattern pattern = Pattern.compile("\"(.*?)\"");
-        Matcher m = pattern.matcher(scriptText);
+        Elements scripts = pcDocument.body().getElementsByTag("script");
         List<String> params = new ArrayList<>();
-        while (m.find()) {
-            params.add(m.group().replace("\"", ""));
+        for (Element script : scripts) {
+            if (script.toString().indexOf("var") > 0) {
+                String scriptText = script.data();
+                Pattern pattern = Pattern.compile("\"(.*?)\"");
+                Matcher m = pattern.matcher(scriptText);
+                params.clear();
+                while (m.find()) {
+                    params.add(m.group().replace("\"", ""));
+                }
+                if (params.size() >= 2) {
+                    break;
+                }
+            }
         }
         String playerUrl = "https://api.1suplayer.me/player/?userID=&type="
                 + params.get(0) + "&vkey=" + params.get(1);
