@@ -1,6 +1,7 @@
 package com.suda.MyVideoApi.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.suda.MyVideoApi.domian.dos.VideoPlayDO;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.util.StringUtils;
@@ -27,7 +28,7 @@ public class SuplayerUtil {
      * @param api
      * @return
      */
-    public static String getPlayUrl(String refererUrl, String playerUrl, String api) {
+    public static VideoPlayDO getPlayUrl(String refererUrl, String playerUrl, String api) {
         try {
             Document pcDocument = JsoupUtils
                     .getConnection(playerUrl)
@@ -54,20 +55,25 @@ public class SuplayerUtil {
             map.put("my_url", params.get(1));
 
             int tryTime = 5;
-            String playUrl = null;
-            while (tryTime > 0 && StringUtils.isEmpty(playUrl)) {
+            VideoPlayDO videoPlayDO = null;
+            while (tryTime > 0 && StringUtils.isEmpty(videoPlayDO)) {
                 Document document = JsoupUtils
                         .getConnection(api)
                         .header("Referer", playerUrl)
                         .data(map)
                         .post();
                 try {
-                    playUrl = JSONObject.parseObject(document.body().text()).getString("url");
+                    JSONObject jsonObject = JSONObject.parseObject(document.body().text());
+                    if ("200".equals(jsonObject.getString("code"))){
+                        videoPlayDO = new VideoPlayDO();
+                        videoPlayDO.setPlayUrl(jsonObject.getString("url"));
+                        videoPlayDO.setType(jsonObject.getString("app"));
+                    }
                 } catch (Exception e) {
                 }
                 tryTime--;
             }
-            return playUrl;
+            return videoPlayDO;
         } catch (IOException e) {
             e.printStackTrace();
         }

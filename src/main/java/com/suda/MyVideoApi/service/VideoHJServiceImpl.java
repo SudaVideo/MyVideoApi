@@ -1,6 +1,7 @@
 package com.suda.MyVideoApi.service;
 
 import com.suda.MyVideoApi.constant.API;
+import com.suda.MyVideoApi.domian.dos.VideoPlayDO;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.util.JsoupUtils;
 import com.suda.MyVideoApi.util.SuplayerUtil;
@@ -33,7 +34,7 @@ public class VideoHJServiceImpl extends BaseVideoService {
     }
 
     @Override
-    protected String parsePlayUrl(String refererUrl) {
+    protected VideoPlayDO parsePlayUrl(String refererUrl) {
         Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
         Elements scripts = pcDocument.body().getElementsByTag("script");
         List<String> params = new ArrayList<>();
@@ -68,7 +69,9 @@ public class VideoHJServiceImpl extends BaseVideoService {
                 for (Element element : seriese.getElementsByTag("a")) {
                     VideoSeriesDO videoSeriesDO = new VideoSeriesDO();
                     videoSeriesDO.setName(element.text());
-                    videoSeriesDO.setSeriesId(element.attr("href").replace("?Play-", ""));
+                    videoSeriesDO.setSeriesId(element.attr("href")
+                            .replace("??","?")
+                            .replace("?Play-", ""));
                     videoSeriesDOS.add(videoSeriesDO);
                 }
             }

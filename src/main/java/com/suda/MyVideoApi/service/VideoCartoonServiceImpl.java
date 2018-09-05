@@ -2,6 +2,7 @@ package com.suda.MyVideoApi.service;
 
 import com.suda.MyVideoApi.constant.API;
 import com.suda.MyVideoApi.domian.BizException;
+import com.suda.MyVideoApi.domian.dos.VideoPlayDO;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
 import com.suda.MyVideoApi.util.JsoupUtils;
@@ -122,7 +123,7 @@ public class VideoCartoonServiceImpl extends BaseVideoService {
     }
 
     @Override
-    protected String parsePlayUrl(String refererUrl) {
+    protected VideoPlayDO parsePlayUrl(String refererUrl) {
         Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
         String playerUrl = pcDocument.getElementsByClass("player").first().attr("src");
         return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "https://api.1suplayer.me/player/api.php");

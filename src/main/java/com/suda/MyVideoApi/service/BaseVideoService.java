@@ -6,13 +6,16 @@ import com.suda.MyVideoApi.domian.PageDTO;
 import com.suda.MyVideoApi.domian.converter.VideoConverter;
 import com.suda.MyVideoApi.domian.dos.VideoDO;
 import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
+import com.suda.MyVideoApi.domian.dos.VideoPlayDO;
 import com.suda.MyVideoApi.domian.dos.VideoSeriesDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
+import com.suda.MyVideoApi.domian.dto.VideoPlayDTO;
 import com.suda.MyVideoApi.util.JsoupUtils;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 
@@ -116,18 +119,20 @@ public abstract class BaseVideoService implements VideoService {
     }
 
     @Override
-    public String queryPlayUrl(String videoId, String seriesId) throws BizException {
+    public VideoPlayDTO queryPlayUrl(String videoId, String seriesId) throws BizException {
         String key = getApi().name() + ":" + "VideoPlayUrl:" + videoId + ":" + seriesId;
-        String playUrl = (String) redisTemplate.opsForValue().get(key);
-        if (playUrl == null) {
+        VideoPlayDO videoPlayDO = (VideoPlayDO) redisTemplate.opsForValue().get(key);
+        if (videoPlayDO == null) {
             String seriesUrl = String.format(getApi().resSeriresUrl, videoId, seriesId).replace(PLAY_SPLITE, "/");
-            playUrl = parsePlayUrl(seriesUrl);
-            if (!StringUtils.isEmpty(playUrl)) {
-                redisTemplate.opsForValue().set(key, playUrl);
+            videoPlayDO = parsePlayUrl(seriesUrl);
+            if (videoPlayDO!=null) {
+                redisTemplate.opsForValue().set(key, videoPlayDO);
                 redisTemplate.expire(key, 1, TimeUnit.HOURS);
             }
         }
-        return playUrl;
+        VideoPlayDTO videoPlayDTO = new VideoPlayDTO();
+        BeanUtils.copyProperties(videoPlayDO,videoPlayDTO);
+        return videoPlayDTO;
     }
 
     @Override
@@ -297,5 +302,5 @@ public abstract class BaseVideoService implements VideoService {
      * @param refererUrl
      * @return
      */
-    protected abstract String parsePlayUrl(String refererUrl);
+    protected abstract VideoPlayDO parsePlayUrl(String refererUrl);
 }

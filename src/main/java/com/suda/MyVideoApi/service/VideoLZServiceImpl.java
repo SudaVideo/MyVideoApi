@@ -1,6 +1,7 @@
 package com.suda.MyVideoApi.service;
 
 import com.suda.MyVideoApi.constant.API;
+import com.suda.MyVideoApi.domian.dos.VideoPlayDO;
 import com.suda.MyVideoApi.util.JsoupUtils;
 import com.suda.MyVideoApi.util.SuplayerUtil;
 import org.jsoup.nodes.Document;
@@ -31,7 +32,7 @@ public class VideoLZServiceImpl extends BaseVideoService {
     }
 
     @Override
-    protected String parsePlayUrl(String refererUrl) {
+    protected VideoPlayDO parsePlayUrl(String refererUrl) {
         Document pcDocument = JsoupUtils.getDocWithPC(refererUrl);
         Elements scripts = pcDocument.body().getElementsByTag("script");
         List<String> params = new ArrayList<>();

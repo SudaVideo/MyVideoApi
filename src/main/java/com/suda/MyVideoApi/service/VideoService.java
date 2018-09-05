@@ -5,6 +5,7 @@ import com.suda.MyVideoApi.domian.BizException;
 import com.suda.MyVideoApi.domian.PageDTO;
 import com.suda.MyVideoApi.domian.dos.VideoDetailDO;
 import com.suda.MyVideoApi.domian.dto.VideoDTO;
+import com.suda.MyVideoApi.domian.dto.VideoPlayDTO;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public interface VideoService {
      * @return
      * @throws BizException
      */
-    String queryPlayUrl(String videoId, String seriesId) throws BizException;
+    VideoPlayDTO queryPlayUrl(String videoId, String seriesId) throws BizException;
 
     /**
      * 根据关键字模糊匹配
