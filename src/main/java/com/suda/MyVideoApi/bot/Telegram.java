@@ -62,8 +62,7 @@ public class Telegram {
                 .parseMode(ParseMode.HTML)
                 .disableWebPagePreview(false)
                 .disableNotification(false)
-                .replyToMessageId(replayId)
-                .replyMarkup(new ForceReply());
+                .replyToMessageId(replayId);
         telegramBot.execute(request, new Callback<SendMessage, SendResponse>() {
             @Override
             public void onResponse(SendMessage request, SendResponse response) {
