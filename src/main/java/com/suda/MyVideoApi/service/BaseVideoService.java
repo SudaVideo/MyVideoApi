@@ -73,6 +73,9 @@ public abstract class BaseVideoService implements VideoService {
                 videoDO.setTitle(parseName(article));
                 videoDO.setOriginUrl(parseOriginUrl(article));
                 videoDO.setThumb(parseThumb(article));
+                if (StringUtils.isEmpty(videoDO.getThumb())){
+                    continue;
+                }
                 videoDOS.add(videoDO);
 
                 String key2 = "VideoTitle:" + videoDO.getTitle() + "(源" + getApi().sourceId + ")";
@@ -196,6 +199,8 @@ public abstract class BaseVideoService implements VideoService {
             String thumb = thumbEl.attr("data-original");
             if (thumb.indexOf("http") >= 0) {
                 return thumb;
+            } else if (StringUtils.isEmpty(thumb)){
+                return "";
             } else {
                 return "https:" + thumb;
             }
