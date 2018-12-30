@@ -8,7 +8,7 @@ public enum API {
 
 
 
-    DILI(0, "https://www.dililitv.com/", "https://www.dililitv.com/gresource/", "https://www.dililitv.com/gresource/%s?Play=%s"),
+    DILI(0, "http://www.dlili.tv/", "http://www.dlili.tv/gresource/", "http://www.dlili.tv/gresource/%s?Play=%s"),
     MJW(1, "https://91mjw.com/category/", "https://91mjw.com/video/", "https://91mjw.com/video/%s?Play=%s"),
     HJ(2, "https://www.hmtv.me/", "https://www.hmtv.me/show/", "https://www.hmtv.me/show/%s?Play-%s"),
     LZ(3, "http://www.lzvod.net/", "http://www.lzvod.net/", "http://www.lzvod.net/%s?Play=%s"),

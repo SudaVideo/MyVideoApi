@@ -53,4 +53,10 @@ public class VideoMjwServiceImpl extends BaseVideoService {
                 + params.get(0) + "&vkey=" + params.get(1);
         return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "https://api.1suplayer.me/player/api.php");
     }
+
+
+    @Override
+    protected int maxVideo() {
+        return 42;
+    }
 }

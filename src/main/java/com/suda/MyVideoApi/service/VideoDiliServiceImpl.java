@@ -52,6 +52,22 @@ public class VideoDiliServiceImpl extends BaseVideoService {
         }
         String playerUrl = "https://api.1suplayer.me/player/?userID=&type="
                 + params.get(0) + "&vkey=" + params.get(1);
+
+        if (params.get(1).contains("http")){
+            VideoPlayDO videoPlayDO = new VideoPlayDO();
+            videoPlayDO.setPlayUrl(params.get(1));
+            videoPlayDO.setType("dplayer");
+            return videoPlayDO;
+        }
+
         return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "https://api.1suplayer.me/player/api.php");
+    }
+
+
+    @Override
+    protected String parseOriginUrl(Element item) {
+        String url =  super.parseOriginUrl(item);
+        return url.replace("http://www.dlili.tv/gresource/","");
+
     }
 }

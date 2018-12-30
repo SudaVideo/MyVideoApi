@@ -20,7 +20,7 @@ public class JsoupUtils {
     private static final String UA_PHONE = "Mozilla/5.0 (Linux; Android 4.3; Nexus 10 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Safari/537.36";
     private static final String UA_PC = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
 
-    private static final int TIME_OUT = 10 * 1000;
+    private static final int TIME_OUT = 30 * 1000;
 
     private static final String ERROR_DESC = "网址请求失败：";
 

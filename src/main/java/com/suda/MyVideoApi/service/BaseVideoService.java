@@ -51,6 +51,11 @@ public abstract class BaseVideoService implements VideoService {
         return pageDTO;
     }
 
+
+    protected int maxVideo() {
+        return 30;
+    }
+
     @Override
     public List<VideoDTO> queryVideosByType(String tag, int pageIndex, boolean useCache) throws BizException {
         String key = getApi().name() + ":" + "VideoType:" + tag + ":" + pageIndex;
@@ -67,19 +72,25 @@ public abstract class BaseVideoService implements VideoService {
             }
             Document pcDocument = JsoupUtils.getDocWithPC(video);
 
+            int i = 0;
             for (Element article : parseItems(pcDocument)) {
+                if (i >= maxVideo()) {
+                    break;
+                }
+
                 VideoDO videoDO = new VideoDO();
                 videoDO.setSource(getApi().sourceId);
                 videoDO.setTitle(parseName(article));
                 videoDO.setOriginUrl(parseOriginUrl(article));
                 videoDO.setThumb(parseThumb(article));
-                if (StringUtils.isEmpty(videoDO.getThumb())){
+                if (StringUtils.isEmpty(videoDO.getThumb())) {
                     continue;
                 }
                 videoDOS.add(videoDO);
 
                 String key2 = "VideoTitle:" + videoDO.getTitle() + "(源" + getApi().sourceId + ")";
                 redisTemplate.opsForValue().set(key2, videoDO);
+                i++;
             }
             redisTemplate.opsForValue().set(key, videoDOS);
         }
@@ -128,13 +139,13 @@ public abstract class BaseVideoService implements VideoService {
         if (videoPlayDO == null) {
             String seriesUrl = String.format(getApi().resSeriresUrl, videoId, seriesId).replace(PLAY_SPLITE, "/");
             videoPlayDO = parsePlayUrl(seriesUrl);
-            if (videoPlayDO!=null) {
+            if (videoPlayDO != null) {
                 redisTemplate.opsForValue().set(key, videoPlayDO);
                 redisTemplate.expire(key, 1, TimeUnit.HOURS);
             }
         }
         VideoPlayDTO videoPlayDTO = new VideoPlayDTO();
-        BeanUtils.copyProperties(videoPlayDO,videoPlayDTO);
+        BeanUtils.copyProperties(videoPlayDO, videoPlayDTO);
         return videoPlayDTO;
     }
 
@@ -199,7 +210,7 @@ public abstract class BaseVideoService implements VideoService {
             String thumb = thumbEl.attr("data-original");
             if (thumb.indexOf("http") >= 0) {
                 return thumb;
-            } else if (StringUtils.isEmpty(thumb)){
+            } else if (StringUtils.isEmpty(thumb)) {
                 return "";
             } else {
                 return "https:" + thumb;
