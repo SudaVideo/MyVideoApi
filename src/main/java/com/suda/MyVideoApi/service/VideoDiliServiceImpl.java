@@ -67,7 +67,12 @@ public class VideoDiliServiceImpl extends BaseVideoService {
     @Override
     protected String parseOriginUrl(Element item) {
         String url =  super.parseOriginUrl(item);
-        return url.replace("http://www.dlili.tv/gresource/","");
+
+        return url.
+                replace("http://www.dlili.tv/gresource/","").
+                replace("https://www.dlili.tv/gresource/","").
+                replace("http://www.dililitv.com/gresource/","").
+                replace("https://www.dililitv.com/gresource/","");
 
     }
 }
