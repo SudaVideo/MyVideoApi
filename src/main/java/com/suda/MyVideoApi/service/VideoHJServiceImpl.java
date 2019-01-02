@@ -52,6 +52,13 @@ public class VideoHJServiceImpl extends BaseVideoService {
                 }
             }
         }
+        if (params.get(1).contains("http")){
+            VideoPlayDO videoPlayDO = new VideoPlayDO();
+            videoPlayDO.setPlayUrl(params.get(1));
+            videoPlayDO.setType("dplayer");
+            return videoPlayDO;
+        }
+
         String playerUrl = "https://api.1suplayer.me/player/?userID=&type="
                 + params.get(0) + "&vkey=" + params.get(1);
         return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "https://api.1suplayer.me/player/api.php");

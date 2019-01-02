@@ -50,6 +50,15 @@ public class VideoLZServiceImpl extends BaseVideoService {
                 }
             }
         }
+
+        if (params.get(1).contains("http")){
+            VideoPlayDO videoPlayDO = new VideoPlayDO();
+            videoPlayDO.setPlayUrl(params.get(1));
+            videoPlayDO.setType("dplayer");
+            return videoPlayDO;
+        }
+
+
         String playerUrl = "http://www.lzvod.net/player/?type=" + params.get(0) + "&vkey=" + params.get(1);
         return SuplayerUtil.getPlayUrl(refererUrl, playerUrl, "http://www.lzvod.net/player/1suplayer.php");
     }
