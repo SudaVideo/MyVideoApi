@@ -24,4 +24,10 @@ public class VideoDetailDO {
      * 预览图
      */
     private List<String> previewImgs;
+
+    /**
+     * 标题
+     */
+    private String title;
+
 }

@@ -101,6 +101,8 @@ public abstract class BaseVideoService implements VideoService {
                 VideoConverter videoConverter = new VideoConverter();
                 VideoDTO videoDTO = new VideoDTO();
                 videoConverter.convert(videoDO, videoDTO);
+                String key3 = "VideoId:" + videoDTO.getVideoId();
+                redisTemplate.opsForValue().set(key3, videoDO.getTitle());
                 videoDTOS.add(videoDTO);
             } catch (Exception e) {
                 continue;
@@ -129,6 +131,11 @@ public abstract class BaseVideoService implements VideoService {
 
             redisTemplate.opsForValue().set(key, videoDetailDO);
         }
+        if (videoDetailDO!=null){
+            String key2 = "VideoId:" + videoId;
+            videoDetailDO.setTitle((String) redisTemplate.opsForValue().get(key2));
+        }
+
         return videoDetailDO;
     }
 
