@@ -48,23 +48,29 @@ public class JsoupUtils {
     }
 
     public static Document getDocWithPC(String url) {
-        try {
+        int tryTime = 5;
+        while (tryTime > 0) {
+            try {
+                HttpProxy httpProxy = getProxy();
+                if (httpProxy != null) {
+                    System.setProperty("http.proxySet", "true");
+                    System.getProperties().put("http.proxyHost", httpProxy.host);
+                    System.getProperties().put("http.proxyPort", httpProxy.port);
+                } else {
+                    System.setProperty("http.proxySet", "false");
+                }
 
-            HttpProxy httpProxy = getProxy();
-            if (httpProxy != null) {
-                System.setProperty("http.proxySet", "true");
-                System.getProperties().put("http.proxyHost", httpProxy.host);
-                System.getProperties().put("http.proxyPort", httpProxy.port);
-            }else {
-                System.setProperty("http.proxySet", "false");
+                Document document = Jsoup.connect(url).userAgent(UA_PC).timeout(TIME_OUT)
+                        .ignoreHttpErrors(true)
+                        .ignoreContentType(true).get();
+                tryTime = 0;
+                return document;
+            } catch (IOException e) {
+                tryTime--;
+                log.error(ERROR_DESC + url);
             }
-            return Jsoup.connect(url).userAgent(UA_PC).timeout(TIME_OUT)
-                    .ignoreHttpErrors(true)
-                    .ignoreContentType(true).get();
-        } catch (IOException e) {
-            log.error(ERROR_DESC + url);
-            throw new BizException(BizErrorCodeConstants.S0002, e);
         }
+        return null;
     }
 
     public static Document getDocWithPhone(String url) {
